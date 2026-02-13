@@ -1,0 +1,19 @@
+---
+title: "Ediana Alla"
+links:
+  - label: GitHub
+    url: "https://github.com/ediana952"
+  - label: Email
+    url: "mailto:edianaalla@hotmail.com"
+output:
+  postcards::trestles
+---
+ 
+## Bio
+
+I’m Ediana Alla, an Economics and Politics student at the University of Essex.  
+I’m interested in data-driven policy analysis, political economy, and causal inference using applied econometrics.
+
+## Links
+
+[GV300 Showcase](gv300.html)

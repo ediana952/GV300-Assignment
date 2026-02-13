@@ -1,0 +1,17 @@
+---
+title: "Ediana Alla"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Learn more about creating websites with Distill at:
+# https://rstudio.github.io/distill/website.html
+
+```
+
+Hi, I’m Ediana Alla.
+
+I am an Economics and Politics student studying in the UK. Outside uni you’ll usually find me playing basketball, planning my next trip, or working on a new language. I’m also learning R and Python. 
+
+This site is a place to collect projects I’m proud of and keep them easy to share starting with my [GV300 Showcase](gv300.html).

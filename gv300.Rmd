@@ -1,0 +1,125 @@
+---
+title: "Understanding Electoral Participation in the UK"
+description: "Advanced Quantitative Political Analysis"
+output: distill::distill_article
+---
+
+## What does this page show
+This page shows a small piece of my GV300 work using UK general election data. I demonstrate how I clean candidate-level results into a constituency-level dataset and then visualise how constituency vote totals vary across the UK.
+
+
+## Introduction
+Even within the same election, constituencies can differ in the number of valid votes recorded. Looking at these differences helps us understand variation in participation and why comparisons across countries need careful visualisation.
+
+
+## Code example
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+```
+
+
+```{r data, echo=TRUE}
+uk_csv <- "https://electionresults.parliament.uk/general-elections/6/candidacies.csv"
+uk_raw <- readr::read_csv(uk_csv, show_col_types = FALSE)
+names(uk_raw) <- names(uk_raw) %>% tolower() %>% str_replace_all("\\s+", "_")
+
+uk1 <- uk_raw %>%
+  filter(!`election_is_by-election`)
+
+uk2 <- uk1 %>%
+  select(
+    constituency = constituency_name,
+    country      = country_name,
+    valid_votes  = candidate_vote_count,
+    electorate   = electorate
+  )
+
+uk3 <- uk2 %>%
+  group_by(country, constituency) %>%
+  summarise(
+    valid_votes = sum(valid_votes, na.rm = TRUE),
+    electorate  = max(electorate, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+uk <- uk3 %>%
+  mutate(turnout_registered = 100 * valid_votes / electorate) %>%
+  filter(is.finite(turnout_registered), electorate > 0)
+
+# Quick check of the data
+glimpse(uk)
+```
+The code loads official UK general election results at the candidate level and cleans the column names for consistency. I remove by-elections so the dataset reflects general election contests only. I then select the variables needed for analysis and aggregate candidate votes within each constituency to calculate total valid votes. This produces a constituency level dataset that can be compared across countries.
+
+
+## Visualisation
+```{r plot2, echo=FALSE}
+# Means by country
+country_means <- uk %>%
+  dplyr::group_by(country) %>%
+  dplyr::summarise(
+    mean_votes = mean(valid_votes, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 1) Counts histogram, faceted by country
+p_counts <- ggplot(uk, aes(x = valid_votes)) +
+  geom_histogram(bins = 20, fill = "steelblue", alpha = 0.7) +
+  geom_vline(
+    data = country_means,
+    aes(xintercept = mean_votes),
+    color = "red", linetype = "dashed", linewidth = 1
+  ) +
+  facet_wrap(~ country, ncol = 2) +
+  labs(
+    title = "Counts",
+    x = "Number of valid votes",
+    y = "Number of constituencies"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+
+# 2) Density histogram, faceted by country
+p_density <- ggplot(uk, aes(x = valid_votes, y = after_stat(density))) +
+  geom_histogram(bins = 20, fill = "steelblue", alpha = 0.7, boundary = 0) +
+  geom_vline(
+    data = country_means,
+    aes(xintercept = mean_votes),
+    color = "red", linetype = "dashed", linewidth = 1
+  ) +
+  facet_wrap(~ country, ncol = 2) +
+  labs(
+    title = "Density",
+    x = "Number of valid votes",
+    y = "Density"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+
+# 3) Combine side by side with patchwork
+(p_counts | p_density) +
+  plot_annotation(
+    title = "Distribution of Constituency Valid Votes by Country",
+    subtitle = "Left: raw counts, Right: density. Red line = country-specific mean."
+  ) &
+  theme(
+    axis.text.y  = element_text(size = 5),
+    axis.text.x  = element_text(size = 5),
+    axis.title.y = element_text(size = 6),
+    axis.title.x = element_text(size = 6),
+    strip.text   = element_text(size = 6),
+    plot.title   = element_text(size = 12)
+  )
+```
+
+The figure compares the distribution of valid votes per constituency across England, Scotland, Wales, and Northern Ireland. The Counts panels (left) show number of constituencies, so England’s bars are much taller mainly because it has far more constituencies. The dashed red line marks the country mean: England and Scotland are around the mid 40,000 valid votes, while Northern Ireland is more tightly concentrated around its mean, indicating less variation in constituency vote totals. Wales shows a wider, more uneven shape, suggesting greater variation across its constituencies.
+
+The Density panels (right) rescale the y-axis so it can compare the shape of each country’s distribution fairly, regardless of how many constituencies the country has. This matters because raw counts can be misleading when one country has many more observations than another. Considerably, differences in constituency vote totals can reflect variation in electorate size and turnout, and they connect to debates about electoral fairness and representation. If constituencies systematically differ in size, the “weight” of a vote may differ across places. Visualising these distributions helps identify where variation is small (more uniform) versus large (potentially more unequal), and it can lead to further analysis of what drives these differences such as demographics, urbanisation, or competitiveness.
