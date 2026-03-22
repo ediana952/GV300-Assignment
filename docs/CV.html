@@ -89,29 +89,26 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>My Website: The Politics Hidden in Concession Speeches</title>
+  <title>My Website: CV</title>
 
-  <meta property="description" itemprop="description" content="A text analysis example using concession speeches and Naive Bayes classification"/>
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="My Website: The Politics Hidden in Concession Speeches"/>
+  <meta property="og:title" content="My Website: CV"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="A text analysis example using concession speeches and Naive Bayes classification"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="My Website"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="My Website: The Politics Hidden in Concession Speeches"/>
-  <meta property="twitter:description" content="A text analysis example using concession speeches and Naive Bayes classification"/>
+  <meta property="twitter:title" content="My Website: CV"/>
 
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","distill::distill_article"]}},"value":[{"type":"character","attributes":{},"value":["The Politics Hidden in Concession Speeches"]},{"type":"character","attributes":{},"value":["A text analysis example using concession speeches and Naive Bayes classification"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","output"]}},"value":[{"type":"character","attributes":{},"value":["CV"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2120,7 +2117,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"The Politics Hidden in Concession Speeches","description":"A text analysis example using concession speeches and Naive Bayes classification","authors":[]}
+{"title":"CV","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2147,247 +2144,18 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>The Politics Hidden in Concession Speeches</h1>
+<h1>CV</h1>
 
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p>A text analysis example using concession speeches and Naive Bayes classification</p>
+
 </div>
 
 
 <div class="d-article">
-<h2 id="a-political-speech-is-never-just-a-speech">A political speech is never just a speech</h2>
-<p>Election concession speeches are moments of loss, but they are also carefully constructed acts of political communication. Even when candidates accept defeat, they are still speaking to supporters, reinforcing values, and shaping how the result should be understood. This makes concession speeches a useful source of textual data. If language carries traces of party identity, then even speeches delivered in defeat may still sound partisan.</p>
-<h2 id="turning-speeches-into-data">Turning speeches into data</h2>
-<p>To test this idea, I used a set of U.S. presidential concession speeches stored as plain text files. Rather than treating each speech as a single document, I reshaped them into paragraphs so that the analysis would have more observations to classify.</p>
-<div class="layout-chunk" data-layout="l-body">
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Read all concession speech text files from the folder</span></span>
-<span><span class='va'>speeches</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://readtext.quanteda.io/reference/readtext.html'>readtext</a></span><span class='op'>(</span><span class='st'>"concession_speeches/rstudio-export/*.txt"</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Turn the texts into a corpus object for text analysis</span></span>
-<span><span class='va'>speeches_corpus</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/corpus.html'>corpus</a></span><span class='op'>(</span><span class='va'>speeches</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Save the document names so information can be extracted from filenames</span></span>
-<span><span class='va'>nms</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>speeches_corpus</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Create a party variable from the filename</span></span>
-<span><span class='va'>speeches_corpus</span><span class='op'>$</span><span class='va'>Party</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>nms</span>, start <span class='op'>=</span> <span class='op'>-</span><span class='fl'>5</span>, end <span class='op'>=</span> <span class='op'>-</span><span class='fl'>5</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Split each speech into paragraphs to create more observations</span></span>
-<span><span class='va'>speeches_paragraph</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/corpus_reshape.html'>corpus_reshape</a></span><span class='op'>(</span><span class='va'>speeches_corpus</span>, to <span class='op'>=</span> <span class='st'>"paragraphs"</span>, use_docvars <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Tokenise the text into words and remove punctuation, symbols, and numbers</span></span>
-<span><span class='va'>speech_tokens</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/tokens.html'>tokens</a></span><span class='op'>(</span></span>
-<span>  <span class='va'>speeches_paragraph</span>,</span>
-<span>  remove_punct <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
-<span>  remove_symbols <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
-<span>  remove_numbers <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
-<span>  split_hyphens <span class='op'>=</span> <span class='cn'>TRUE</span></span>
-<span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Stem words so similar word forms are treated as the same feature</span></span>
-<span><span class='va'>speeches_clean</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/tokens_wordstem.html'>tokens_wordstem</a></span><span class='op'>(</span><span class='va'>speech_tokens</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Remove applause markers that do not carry political meaning</span></span>
-<span><span class='va'>speeches_clean</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/tokens_select.html'>tokens_remove</a></span><span class='op'>(</span><span class='va'>speeches_clean</span>, pattern <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"applpaus"</span>, <span class='st'>"applause"</span><span class='op'>)</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Remove ordinal endings such as 1st, 3rd, and 4th</span></span>
-<span><span class='va'>speeches_clean</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/tokens_select.html'>tokens_select</a></span><span class='op'>(</span><span class='va'>speeches_clean</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"*st"</span>, <span class='st'>"*th"</span>, <span class='st'>"*rd"</span><span class='op'>)</span>, selection <span class='op'>=</span> <span class='st'>"remove"</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Convert the cleaned tokens into a document-feature matrix</span></span>
-<span><span class='va'>speeches_dfm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/dfm.html'>dfm</a></span><span class='op'>(</span><span class='va'>speeches_clean</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Remove common English stopwords such as "the" and "and"</span></span>
-<span><span class='va'>speeches_dfm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/dfm_select.html'>dfm_remove</a></span><span class='op'>(</span><span class='va'>speeches_dfm</span>, <span class='fu'><a href='https://rdrr.io/pkg/stopwords/man/stopwords.html'>stopwords</a></span><span class='op'>(</span><span class='st'>"english"</span><span class='op'>)</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Sort features alphabetically for consistency</span></span>
-<span><span class='va'>speeches_dfm</span> <span class='op'>&lt;-</span> <span class='va'>speeches_dfm</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/order.html'>order</a></span><span class='op'>(</span><span class='fu'><a href='https://quanteda.io/reference/featnames.html'>featnames</a></span><span class='op'>(</span><span class='va'>speeches_dfm</span><span class='op'>)</span><span class='op'>)</span><span class='op'>]</span></span>
-<span></span>
-<span><span class='co'># A summary of the paragraph-level corpus</span></span>
-<span><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>speeches_paragraph</span><span class='op'>)</span></span></code></pre>
-</div>
-<pre><code>Corpus consisting of 337 documents, showing 100 documents:
-
-                  Text Types Tokens Sentences Party
-    Bryan_1896_D.txt.1    43     51         2     D
-     Bush_1992_R.txt.1    37     64         7     R
-     Bush_1992_R.txt.2     8     18         4     R
-     Bush_1992_R.txt.3    33     55         6     R
-     Bush_1992_R.txt.4    64     83         6     R
-     Bush_1992_R.txt.5    69    105         5     R
-     Bush_1992_R.txt.6    50     66         4     R
-     Bush_1992_R.txt.7    92    139         6     R
-     Bush_1992_R.txt.8    32     39         2     R
-     Bush_1992_R.txt.9    88    144        11     R
-    Bush_1992_R.txt.10    34     47         2     R
-    Bush_1992_R.txt.11    15     24         4     R
-   Carter_1980_D.txt.1    43     52         2     D
-   Carter_1980_D.txt.2    44     70         2     D
-   Carter_1980_D.txt.3    83    140         9     D
-   Carter_1980_D.txt.4    51     73         3     D
-   Carter_1980_D.txt.5    70     97         7     D
-   Carter_1980_D.txt.6    62     82         3     D
-   Carter_1980_D.txt.7    45     57         2     D
-   Carter_1980_D.txt.8    35     62         2     D
-   Carter_1980_D.txt.9    53     74         4     D
-  Carter_1980_D.txt.10    31     40         2     D
-  Carter_1980_D.txt.11     5      5         1     D
-  Clinton_2016_D.txt.1    39     43         1     D
-  Clinton_2016_D.txt.2    10     16         3     D
-  Clinton_2016_D.txt.3    10     20         4     D
-  Clinton_2016_D.txt.4    21     32         4     D
-  Clinton_2016_D.txt.5    51     69         3     D
-  Clinton_2016_D.txt.6    40     51         2     D
-  Clinton_2016_D.txt.7    60     81         3     D
-  Clinton_2016_D.txt.8    49     64         5     D
-  Clinton_2016_D.txt.9    46     65         3     D
- Clinton_2016_D.txt.10    57     78         2     D
- Clinton_2016_D.txt.11    47     67         2     D
- Clinton_2016_D.txt.12    26     31         2     D
- Clinton_2016_D.txt.13    28     31         2     D
- Clinton_2016_D.txt.14    37     41         1     D
- Clinton_2016_D.txt.15    19     19         1     D
- Clinton_2016_D.txt.16    25     26         1     D
- Clinton_2016_D.txt.17    46     57         2     D
- Clinton_2016_D.txt.18    25     28         1     D
- Clinton_2016_D.txt.19    45     61         4     D
- Clinton_2016_D.txt.20    48     66         2     D
- Clinton_2016_D.txt.21    23     26         2     D
- Clinton_2016_D.txt.22    49     72         6     D
- Clinton_2016_D.txt.23    21     21         1     D
- Clinton_2016_D.txt.24     9     11         1     D
- Clinton_2016_D.txt.25    20     22         1     D
- Clinton_2016_D.txt.26    34     43         1     D
- Clinton_2016_D.txt.27    32     39         1     D
- Clinton_2016_D.txt.28    32     39         1     D
- Clinton_2016_D.txt.29     5      7         1     D
- Clinton_2016_D.txt.30    56     77         3     D
- Clinton_2016_D.txt.31    44     65         3     D
- Clinton_2016_D.txt.32    28     40         2     D
- Clinton_2016_D.txt.33    19     21         1     D
- Clinton_2016_D.txt.34    12     14         1     D
-    Dewey_1948_R.txt.1    52     62         2     R
-     Dole_1996_R.txt.1    67    131        12     R
-     Dole_1996_R.txt.2    88    163        11     R
-     Dole_1996_R.txt.3    20     21         1     R
-     Dole_1996_R.txt.4    40     56         4     R
-     Dole_1996_R.txt.5    99    165         9     R
-     Dole_1996_R.txt.6    63    124         6     R
-     Dole_1996_R.txt.7    66    129         2     R
-     Dole_1996_R.txt.8    33     45         6     R
-     Dole_1996_R.txt.9    35     54         2     R
-    Dole_1996_R.txt.10    72    131         5     R
-    Dole_1996_R.txt.11    22     24         1     R
-    Dole_1996_R.txt.12    19     27         4     R
-    Dole_1996_R.txt.13    44     73         4     R
-    Dole_1996_R.txt.14    38     47         1     R
-    Dole_1996_R.txt.15    30     41         2     R
-  Dukakis_1988_D.txt.1    24     37         4     D
-  Dukakis_1988_D.txt.2    34     47         1     D
-  Dukakis_1988_D.txt.3    56     83         4     D
-  Dukakis_1988_D.txt.4    64     90         6     D
-  Dukakis_1988_D.txt.5   123    209         8     D
-  Dukakis_1988_D.txt.6    63     95         4     D
-  Dukakis_1988_D.txt.7   116    224         7     D
-  Dukakis_1988_D.txt.8    45     73         4     D
-  Dukakis_1988_D.txt.9    46     68         2     D
- Dukakis_1988_D.txt.10    59     92         4     D
- Dukakis_1988_D.txt.11    51     79         2     D
- Dukakis_1988_D.txt.12    45     69         5     D
- Dukakis_1988_D.txt.13    46     68         3     D
- Dukakis_1988_D.txt.14    34     46         4     D
- Dukakis_1988_D.txt.15     6      7         1     D
-     Ford_1976_R.txt.1    78    106         4     R
-     Ford_1976_R.txt.2    49     73         2     R
-     Ford_1976_R.txt.3    11     13         2     R
-     Ford_1976_R.txt.4    25     28         2     R
-     Ford_1976_R.txt.5    47     55         2     R
-     Ford_1976_R.txt.6    23     25         1     R
-     Ford_1976_R.txt.7    15     17         1     R
-     Ford_1976_R.txt.8    17     19         1     R
-     Ford_1976_R.txt.9     3      3         1     R
-    Ford_1976_R.txt.10    22     24         2     R
-    Ford_1976_R.txt.11    41     51         1     R
-    Ford_1976_R.txt.12    36     42         1     R</code></pre>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Check how many paragraphs belong to each party</span></span>
-<span><span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span><span class='op'>(</span><span class='va'>speeches_paragraph</span><span class='op'>$</span><span class='va'>Party</span><span class='op'>)</span></span></code></pre>
-</div>
-<pre><code>
-  D   R 
-157 180 </code></pre>
-</div>
-<h2 id="teaching-a-model-to-detect-party">Teaching a model to detect party</h2>
-<p>The classifier used here was Naive Bayes, a common method in text analysis. It works by treating each paragraph as a bag of words and estimating how strongly particular terms are associated with one class or another. In this case, the task was simple: predict whether a paragraph came from a Democratic or Republican concession speech.</p>
-<p>The data was split into training and test sets, allowing the model to learn from one portion of the text and then be evaluated on unseen paragraphs.</p>
-<div class="layout-chunk" data-layout="l-body">
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Train/test split</span></span>
-<span><span class='va'>train_dfm</span> <span class='op'>&lt;-</span> <span class='va'>speeches_dfm</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>268</span>, <span class='op'>]</span></span>
-<span><span class='va'>test_dfm</span>  <span class='op'>&lt;-</span> <span class='va'>speeches_dfm</span><span class='op'>[</span><span class='fl'>269</span><span class='op'>:</span><span class='fl'>337</span>, <span class='op'>]</span></span>
-<span></span>
-<span><span class='va'>train_labels</span> <span class='op'>&lt;-</span> <span class='va'>speeches_paragraph</span><span class='op'>$</span><span class='va'>Party</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>268</span><span class='op'>]</span></span>
-<span><span class='va'>test_labels</span>  <span class='op'>&lt;-</span> <span class='va'>speeches_paragraph</span><span class='op'>$</span><span class='va'>Party</span><span class='op'>[</span><span class='fl'>269</span><span class='op'>:</span><span class='fl'>337</span><span class='op'>]</span></span>
-<span></span>
-<span><span class='co'># Train Naive Bayes classifier</span></span>
-<span><span class='va'>nb_model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/quanteda.textmodels/man/textmodel_nb.html'>textmodel_nb</a></span><span class='op'>(</span><span class='va'>train_dfm</span>, <span class='va'>train_labels</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Match test data to training vocabulary</span></span>
-<span><span class='va'>test_dfm_matched</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://quanteda.io/reference/dfm_match.html'>dfm_match</a></span><span class='op'>(</span><span class='va'>test_dfm</span>, features <span class='op'>=</span> <span class='fu'><a href='https://quanteda.io/reference/featnames.html'>featnames</a></span><span class='op'>(</span><span class='va'>train_dfm</span><span class='op'>)</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Generate predictions</span></span>
-<span><span class='va'>predicted_class</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>nb_model</span>, newdata <span class='op'>=</span> <span class='va'>test_dfm_matched</span><span class='op'>)</span></span>
-<span><span class='va'>actual_class</span> <span class='op'>&lt;-</span> <span class='va'>test_labels</span></span></code></pre>
-</div>
-</div>
-<h2 id="what-the-classifier-got-right">What the classifier got right</h2>
-<p>To evaluate performance, I compared the predicted labels with the true party labels using a confusion matrix. I also reported standard classification metrics, since looking only at overall accuracy can hide the types of mistakes a model makes.</p>
-<div class="layout-chunk" data-layout="l-body">
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Confusion matrix</span></span>
-<span><span class='va'>tab_class</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span><span class='op'>(</span>Predicted <span class='op'>=</span> <span class='va'>predicted_class</span>, Actual <span class='op'>=</span> <span class='va'>actual_class</span><span class='op'>)</span></span>
-<span></span>
-<span><span class='co'># Model performance metrics</span></span>
-<span><span class='va'>cfm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/caret/man/confusionMatrix.html'>confusionMatrix</a></span><span class='op'>(</span><span class='va'>tab_class</span>, mode <span class='op'>=</span> <span class='st'>"everything"</span><span class='op'>)</span></span>
-<span><span class='va'>cfm</span></span></code></pre>
-</div>
-<pre><code>Confusion Matrix and Statistics
-
-         Actual
-Predicted  D  R
-        D 10 38
-        R  2 19
-                                          
-               Accuracy : 0.4203          
-                 95% CI : (0.3024, 0.5452)
-    No Information Rate : 0.8261          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.0763          
-                                          
- Mcnemar&#39;s Test P-Value : 3.13e-08        
-                                          
-            Sensitivity : 0.8333          
-            Specificity : 0.3333          
-         Pos Pred Value : 0.2083          
-         Neg Pred Value : 0.9048          
-              Precision : 0.2083          
-                 Recall : 0.8333          
-                     F1 : 0.3333          
-             Prevalence : 0.1739          
-         Detection Rate : 0.1449          
-   Detection Prevalence : 0.6957          
-      Balanced Accuracy : 0.5833          
-                                          
-       &#39;Positive&#39; Class : D               
-                                          </code></pre>
-</div>
-<p>The results are mixed rather than strongly predictive. What emerged is not a clean partisan divide, but a blurrier pattern. The model did seem to recognise some features of Democratic speech, yet it also confused many Republican paragraphs for Democratic ones. That makes the result interesting for a different reason as it suggests that party identity is still present in concession speeches, but only faintly. In moments of defeat, candidates do not stop sounding political, but they often begin to sound more alike.</p>
-<h2 id="why-this-matters">Why this matters</h2>
-<p>What makes this example interesting is not that the model classified every paragraph well, but that it showed how concession speeches sit between party identity and shared political ritual. Candidates may come from opposing parties, yet in defeat they often speak in similar ways like thanking supporters, accepting the result, and appealing to unity. That makes the speeches harder to separate neatly, even when some partisan traces remain.</p>
-<p>This is why text analysis matters in political science. It allows language to be studied not only as rhetoric, but also as data. In doing so, it can reveal patterns that are easy to overlook, showing when political language remains distinctive and when different speakers begin to sound unexpectedly similar.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>You can view or download my CV here:
+<a href="Ediana_CV.pdf">Download my CV</a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
