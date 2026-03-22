@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = FALSE)
 
 Hi, I’m Ediana Alla.
 
-I am an Economics and Politics student studying in the UK. Outside uni you’ll usually find me playing basketball, planning my next trip, or working on a new language. I’m also learning R and Python. 
+I’m an Economics and Politics student at the University of Essex with a strong interest in data, public policy, and political analysis. My work brings together quantitative research, visualisation, and written interpretation to explore political and economic questions in a clear and engaging way.
 
-This site is a place to collect projects I’m proud of and keep them easy to share starting with my [GV300 Showcase](gv300.html).
+This website is a space to showcase projects I’ve worked on across my studies, including data analysis, text analysis, and other pieces that reflect both my academic interests and my developing technical skills in R.
+
+You can begin with my [Projects](projects.html) page, where I’ve collected the main pieces of work featured on this site or view my [CV](cv.html).

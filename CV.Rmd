@@ -1,0 +1,16 @@
+---
+title: "CV"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+You can view or download my CV here:
+[Download my CV](Ediana_CV.pdf)
+
+
+
+
+

@@ -1,0 +1,116 @@
+---
+title: "The Politics Hidden in Concession Speeches"
+description: "A text analysis example using concession speeches and Naive Bayes classification"
+distill::distill_article:
+    code_folding: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+library(quanteda)
+library(readtext)
+library(quanteda.textmodels)
+library(dplyr)
+library(stringr)
+library(caret)
+library(knitr)
+```
+
+## A political speech is never just a speech
+Election concession speeches are moments of loss, but they are also carefully constructed acts of political communication. Even when candidates accept defeat, they are still speaking to supporters, reinforcing values, and shaping how the result should be understood. This makes concession speeches a useful source of textual data. If language carries traces of party identity, then even speeches delivered in defeat may still sound partisan.
+
+## Turning speeches into data
+To test this idea, I used a set of U.S. presidential concession speeches stored as plain text files. Rather than treating each speech as a single document, I reshaped them into paragraphs so that the analysis would have more observations to classify.
+
+```{r, analyse}
+# Read all concession speech text files from the folder
+speeches <- readtext("concession_speeches/rstudio-export/*.txt")
+
+# Turn the texts into a corpus object for text analysis
+speeches_corpus <- corpus(speeches)
+
+# Save the document names so information can be extracted from filenames
+nms <- names(speeches_corpus)
+
+# Create a party variable from the filename
+speeches_corpus$Party <- str_sub(nms, start = -5, end = -5)
+
+# Split each speech into paragraphs to create more observations
+speeches_paragraph <- corpus_reshape(speeches_corpus, to = "paragraphs", use_docvars = TRUE)
+
+# Tokenise the text into words and remove punctuation, symbols, and numbers
+speech_tokens <- tokens(
+  speeches_paragraph,
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_numbers = TRUE,
+  split_hyphens = TRUE
+)
+
+# Stem words so similar word forms are treated as the same feature
+speeches_clean <- tokens_wordstem(speech_tokens)
+
+# Remove applause markers that do not carry political meaning
+speeches_clean <- tokens_remove(speeches_clean, pattern = c("applpaus", "applause"))
+
+# Remove ordinal endings such as 1st, 3rd, and 4th
+speeches_clean <- tokens_select(speeches_clean, c("*st", "*th", "*rd"), selection = "remove")
+
+# Convert the cleaned tokens into a document-feature matrix
+speeches_dfm <- dfm(speeches_clean)
+
+# Remove common English stopwords such as "the" and "and"
+speeches_dfm <- dfm_remove(speeches_dfm, stopwords("english"))
+
+# Sort features alphabetically for consistency
+speeches_dfm <- speeches_dfm[, order(featnames(speeches_dfm))]
+
+# A summary of the paragraph-level corpus
+summary(speeches_paragraph)
+
+# Check how many paragraphs belong to each party
+table(speeches_paragraph$Party)
+```
+## Teaching a model to detect party
+The classifier used here was Naive Bayes, a common method in text analysis. It works by treating each paragraph as a bag of words and estimating how strongly particular terms are associated with one class or another. In this case, the task was simple: predict whether a paragraph came from a Democratic or Republican concession speech.
+
+The data was split into training and test sets, allowing the model to learn from one portion of the text and then be evaluated on unseen paragraphs.
+
+```{r, Naive Bayes}
+# Train/test split
+train_dfm <- speeches_dfm[1:268, ]
+test_dfm  <- speeches_dfm[269:337, ]
+
+train_labels <- speeches_paragraph$Party[1:268]
+test_labels  <- speeches_paragraph$Party[269:337]
+
+# Train Naive Bayes classifier
+nb_model <- textmodel_nb(train_dfm, train_labels)
+
+# Match test data to training vocabulary
+test_dfm_matched <- dfm_match(test_dfm, features = featnames(train_dfm))
+
+# Generate predictions
+predicted_class <- predict(nb_model, newdata = test_dfm_matched)
+actual_class <- test_labels
+```
+
+## What the classifier got right
+To evaluate performance, I compared the predicted labels with the true party labels using a confusion matrix. I also reported standard classification metrics, since looking only at overall accuracy can hide the types of mistakes a model makes.
+
+```{r, Confusion matrix}
+# Confusion matrix
+tab_class <- table(Predicted = predicted_class, Actual = actual_class)
+
+# Model performance metrics
+cfm <- confusionMatrix(tab_class, mode = "everything")
+cfm
+```
+The results are mixed rather than strongly predictive. What emerged is not a clean partisan divide, but a blurrier pattern. The model did seem to recognise some features of Democratic speech, yet it also confused many Republican paragraphs for Democratic ones. That makes the result interesting for a different reason as it suggests that party identity is still present in concession speeches, but only faintly. In moments of defeat, candidates do not stop sounding political, but they often begin to sound more alike.
+
+## Why this matters
+What makes this example interesting is not that the model classified every paragraph well, but that it showed how concession speeches sit between party identity and shared political ritual. Candidates may come from opposing parties, yet in defeat they often speak in similar ways like thanking supporters, accepting the result, and appealing to unity. That makes the speeches harder to separate neatly, even when some partisan traces remain.
+
+This is why text analysis matters in political science. It allows language to be studied not only as rhetoric, but also as data. In doing so, it can reveal patterns that are easy to overlook, showing when political language remains distinctive and when different speakers begin to sound unexpectedly similar.

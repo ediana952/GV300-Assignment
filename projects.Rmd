@@ -1,0 +1,22 @@
+---
+title: "Projects"
+description: "A collection of my coursework and data analysis projects"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Featured work
+
+### [Understanding Electoral Participation in the UK](electoral-participation.html)
+
+### [The Politics Hidden in Concession Speeches](text-analysis.html)
+
+### [Measuring Institutional Trust with IRT](institutional-trust.html)
+
+
+
+
+

@@ -9,11 +9,18 @@ navbar:
   right:
     - text: "Home"
       href: index.html
-    - text: "Landing"
-      href: landing.html
-    - text: "GV300 Showcase"
-      href: gv300.html
+    - text: "Projects"
+      href: projects.html
+    - text: "CV"
+      href: cv.html
+    - text: "Electoral Participation"
+      href: electoral-participation.html
+    - text: "Text Analysis"
+      href: text-analysis.html
+    - text: "Institutional Trust"
+      href: institutional-trust.html
     - text: "GitHub"
       href: https://github.com/ediana952/GV300-Assignment
+      
 output:
   distill::distill_article

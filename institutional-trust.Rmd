@@ -1,0 +1,71 @@
+---
+title: "Measuring Institutional Trust with IRT"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+library(mirt)
+set.seed(123)
+```
+## Why institutional trust is hard to measure
+Trust in institutions matters for politics, but it is not something we can observe directly. Instead, we usually infer it from survey responses. In the unbank dataset, respondents were asked how much trust they place in a range of UK institutions, from 0 (“no trust at all”) to 10 (“completely trust”). These institutions include the UK government, Parliament, political parties, the NHS, the police, the courts, local councils, banks, the Bank of England, news organisations, local MPs, and social media.
+
+Because these questions all capture related aspects of institutional trust, they can be analysed together rather than one by one. The goal here is to move beyond individual responses and estimate a broader measure of trust.
+
+## From survey answers to a latent measure
+To do this, I used Item Response Theory (IRT). This approach is useful when a concept cannot be observed directly but can be measured through several related survey items. Instead of treating each question as equally informative, IRT estimates a latent score based on the full pattern of responses.
+
+I focused on the Q37_ battery, which included the items mentioned above. Then I converted the responses into numeric form, and kept complete cases so the items could be analysed consistently. I also created a simple sum score across the battery to compare a basic measure with the latent IRT estimate.
+
+```{r data_prep, echo=TRUE}
+load("unbank.Rda")
+run_df <- unbank
+rm(unbank)
+
+q37_names <- grep("^Q37_", names(run_df), value = TRUE)
+q37_df <- run_df[, q37_names, drop = FALSE]
+
+q37_num <- data.frame(
+  lapply(q37_df, function(x) suppressWarnings(as.numeric(as.character(x))))
+)
+
+q37_cc <- q37_num[complete.cases(q37_num), , drop = FALSE]
+sum_score <- rowSums(q37_cc)
+```
+
+## Estimating latent trust
+I then fitted a graded response model, which is appropriate for ordered survey responses like these 0–10 trust scales. The model estimates a latent score, usually called theta, for each respondent. Higher values indicate higher underlying institutional trust.
+
+```{r latent_trust, echo=TRUE}
+fit_grm <- mirt(q37_cc, 1, itemtype = "graded", verbose = FALSE)
+
+theta_out <- fscores(fit_grm, method = "EAP", full.scores.SE = TRUE)
+theta_hat <- as.numeric(theta_out[, 1])
+
+theta_df <- data.frame(
+  theta = theta_hat,
+  sum_score = sum_score
+)
+print(head(theta_df))
+```
+
+## Comparing a simple score with the latent score
+The figure shows a strong upward relationship between the Q37 sum score and the IRT latent trust score. This means the sum score is a reasonable summary of institutional trust.
+
+```{r visualisation, echo=TRUE}
+ggplot(theta_df, aes(x = sum_score, y = theta)) +
+  geom_point(alpha = 0.25) +
+  theme_minimal(base_size = 12) +
+  labs(
+    title = "Sum score versus IRT latent trust score",
+    x = "Q37 sum score",
+    y = "Estimated theta"
+  )
+```
+
+At the same time, the points do not fall perfectly on one line. This shows that people with the same total score can still differ slightly in their latent trust because they answered the institutions differently. For example, two respondents may both have a score of 60, but one may give similar ratings across all institutions while another gives very high trust to some and low trust to others. A simple sum score treats them the same, but IRT can capture that difference.
+
+## Why this matters
+Institutional trust cannot be observed directly, but it can be estimated from survey responses. In this case, IRT turns the Q37 battery into a clearer and more detailed measure of trust than a simple total score alone.

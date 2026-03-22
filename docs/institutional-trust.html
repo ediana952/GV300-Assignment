@@ -89,26 +89,26 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>My Website: Ediana Alla</title>
+  <title>My Website: Measuring Institutional Trust with IRT</title>
 
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="My Website: Ediana Alla"/>
+  <meta property="og:title" content="My Website: Measuring Institutional Trust with IRT"/>
   <meta property="og:type" content="article"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="My Website"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="My Website: Ediana Alla"/>
+  <meta property="twitter:title" content="My Website: Measuring Institutional Trust with IRT"/>
 
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","image","links","output"]}},"value":[{"type":"character","attributes":{},"value":["Ediana Alla"]},{"type":"character","attributes":{},"value":["ediana.jpg"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["label","url"]}},"value":[{"type":"character","attributes":{},"value":["GitHub"]},{"type":"character","attributes":{},"value":["https://github.com/ediana952/GV300-Assignment.git"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["label","url"]}},"value":[{"type":"character","attributes":{},"value":["Email"]},{"type":"character","attributes":{},"value":["mailto:edianaalla@hotmail.com"]}]}]},{"type":"character","attributes":{},"value":["postcards::jolla"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","output"]}},"value":[{"type":"character","attributes":{},"value":["Measuring Institutional Trust with IRT"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2117,7 +2117,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Ediana Alla","authors":[]}
+{"title":"Measuring Institutional Trust with IRT","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2129,8 +2129,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
-<a href="landing.html">Landing</a>
-<a href="gv300.html">GV300 Showcase</a>
+<a href="projects.html">Projects</a>
+<a href="cv.html">CV</a>
+<a href="electoral-participation.html">Electoral Participation</a>
+<a href="text-analysis.html">Text Analysis</a>
+<a href="institutional-trust.html">Institutional Trust</a>
 <a href="https://github.com/ediana952/GV300-Assignment">GitHub</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
@@ -2141,7 +2144,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>Ediana Alla</h1>
+<h1>Measuring Institutional Trust with IRT</h1>
 
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
@@ -2150,8 +2153,71 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
 <div class="d-article">
-<p>I am an Economics and Politics student in the University of Essex, with a strong focus on data-driven policy analysis. I’m especially interested in political economy, public policy, and causal inference using applied econometrics.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="why-institutional-trust-is-hard-to-measure">Why institutional trust is hard to measure</h2>
+<p>Trust in institutions matters for politics, but it is not something we can observe directly. Instead, we usually infer it from survey responses. In the unbank dataset, respondents were asked how much trust they place in a range of UK institutions, from 0 (“no trust at all”) to 10 (“completely trust”). These institutions include the UK government, Parliament, political parties, the NHS, the police, the courts, local councils, banks, the Bank of England, news organisations, local MPs, and social media.</p>
+<p>Because these questions all capture related aspects of institutional trust, they can be analysed together rather than one by one. The goal here is to move beyond individual responses and estimate a broader measure of trust.</p>
+<h2 id="from-survey-answers-to-a-latent-measure">From survey answers to a latent measure</h2>
+<p>To do this, I used Item Response Theory (IRT). This approach is useful when a concept cannot be observed directly but can be measured through several related survey items. Instead of treating each question as equally informative, IRT estimates a latent score based on the full pattern of responses.</p>
+<p>I focused on the Q37_ battery, which included the items mentioned above. Then I converted the responses into numeric form, and kept complete cases so the items could be analysed consistently. I also created a simple sum score across the battery to compare a basic measure with the latent IRT estimate.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'><a href='https://rdrr.io/r/base/load.html'>load</a></span><span class='op'>(</span><span class='st'>"unbank.Rda"</span><span class='op'>)</span></span>
+<span><span class='va'>run_df</span> <span class='op'>&lt;-</span> <span class='va'>unbank</span></span>
+<span><span class='fu'><a href='https://rdrr.io/r/base/rm.html'>rm</a></span><span class='op'>(</span><span class='va'>unbank</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>q37_names</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grep</a></span><span class='op'>(</span><span class='st'>"^Q37_"</span>, <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>run_df</span><span class='op'>)</span>, value <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span><span class='va'>q37_df</span> <span class='op'>&lt;-</span> <span class='va'>run_df</span><span class='op'>[</span>, <span class='va'>q37_names</span>, drop <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>]</span></span>
+<span></span>
+<span><span class='va'>q37_num</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span></span>
+<span>  <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>q37_df</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>q37_cc</span> <span class='op'>&lt;-</span> <span class='va'>q37_num</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/stats/complete.cases.html'>complete.cases</a></span><span class='op'>(</span><span class='va'>q37_num</span><span class='op'>)</span>, , drop <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>]</span></span>
+<span><span class='va'>sum_score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>q37_cc</span><span class='op'>)</span></span></code></pre>
+</div>
+</div>
+<h2 id="estimating-latent-trust">Estimating latent trust</h2>
+<p>I then fitted a graded response model, which is appropriate for ordered survey responses like these 0–10 trust scales. The model estimates a latent score, usually called theta, for each respondent. Higher values indicate higher underlying institutional trust.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>fit_grm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://philchalmers.github.io/mirt/reference/mirt.html'>mirt</a></span><span class='op'>(</span><span class='va'>q37_cc</span>, <span class='fl'>1</span>, itemtype <span class='op'>=</span> <span class='st'>"graded"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>theta_out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://philchalmers.github.io/mirt/reference/fscores.html'>fscores</a></span><span class='op'>(</span><span class='va'>fit_grm</span>, method <span class='op'>=</span> <span class='st'>"EAP"</span>, full.scores.SE <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span><span class='va'>theta_hat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>theta_out</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>]</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>theta_df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span></span>
+<span>  theta <span class='op'>=</span> <span class='va'>theta_hat</span>,</span>
+<span>  sum_score <span class='op'>=</span> <span class='va'>sum_score</span></span>
+<span><span class='op'>)</span></span>
+<span><span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>theta_df</span><span class='op'>)</span><span class='op'>)</span></span></code></pre>
+</div>
+<pre><code>       theta sum_score
+1 -0.4591598        28
+2  1.5471085        84
+3  1.6292847        91
+4 -0.4985180        24
+5 -0.3582780        41
+6 -0.6800468        29</code></pre>
+</div>
+<h2 id="comparing-a-simple-score-with-the-latent-score">Comparing a simple score with the latent score</h2>
+<p>The figure shows a strong upward relationship between the Q37 sum score and the IRT latent trust score. This means the sum score is a reasonable summary of institutional trust.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>theta_df</span>, <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>sum_score</span>, y <span class='op'>=</span> <span class='va'>theta</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>alpha <span class='op'>=</span> <span class='fl'>0.25</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_minimal</a></span><span class='op'>(</span>base_size <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
+<span>    title <span class='op'>=</span> <span class='st'>"Sum score versus IRT latent trust score"</span>,</span>
+<span>    x <span class='op'>=</span> <span class='st'>"Q37 sum score"</span>,</span>
+<span>    y <span class='op'>=</span> <span class='st'>"Estimated theta"</span></span>
+<span>  <span class='op'>)</span></span></code></pre>
+</div>
+<p><img src="institutional-trust_files/figure-html5/visualisation-1.png" alt="" width="624" /></p>
+</div>
+<p>At the same time, the points do not fall perfectly on one line. This shows that people with the same total score can still differ slightly in their latent trust because they answered the institutions differently. For example, two respondents may both have a score of 60, but one may give similar ratings across all institutions while another gives very high trust to some and low trust to others. A simple sum score treats them the same, but IRT can capture that difference.</p>
+<h2 id="why-this-matters">Why this matters</h2>
+<p>Institutional trust cannot be observed directly, but it can be estimated from survey responses. In this case, IRT turns the Q37 battery into a clearer and more detailed measure of trust than a simple total score alone.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

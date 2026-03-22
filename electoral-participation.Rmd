@@ -1,0 +1,127 @@
+---
+title: "Understanding Electoral Participation in the UK"
+output: distill::distill_article
+---
+
+## From raw results to constituency patterns
+General elections are often discussed as if they produce one national result, but they are experienced very differently across places. Behind the headline outcome lies a quieter geography of participation: some constituencies record far more votes than others, and those differences can shape how representative an election really feels.
+
+This page follows that variation across the UK. Using constituency-level election data, I move from raw candidate results to a clearer picture of how valid votes are distributed across England, Scotland, Wales, and Northern Ireland. Rather than one single pattern, the election looks different across the four countries.
+
+The original dataset records candidate-level election results. To make comparisons across constituencies possible, I aggregated those results into constituency-level totals and combined them with electorate data. This makes it possible to look beyond individual candidates and focus instead on the broader structure of participation.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+```
+
+
+```{r data, echo=TRUE}
+uk_csv <- "https://electionresults.parliament.uk/general-elections/6/candidacies.csv"
+uk_raw <- readr::read_csv(uk_csv, show_col_types = FALSE)
+names(uk_raw) <- names(uk_raw) %>% tolower() %>% str_replace_all("\\s+", "_")
+
+uk1 <- uk_raw %>%
+  filter(!`election_is_by-election`)
+
+uk2 <- uk1 %>%
+  select(
+    constituency = constituency_name,
+    country      = country_name,
+    valid_votes  = candidate_vote_count,
+    electorate   = electorate
+  )
+
+uk3 <- uk2 %>%
+  group_by(country, constituency) %>%
+  summarise(
+    valid_votes = sum(valid_votes, na.rm = TRUE),
+    electorate  = max(electorate, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+uk <- uk3 %>%
+  mutate(turnout_registered = 100 * valid_votes / electorate) %>%
+  filter(is.finite(turnout_registered), electorate > 0)
+
+# Quick check of the data
+glimpse(uk)
+```
+
+## Looking for variation across the UK
+Once the data is reshaped to constituency level, the next step is to see how vote totals are distributed within each country. Rather than focusing only on averages, the visualisation below shows how tightly clustered or widely spread constituency vote totals are. That matters because elections are not only about who wins, but also about how evenly participation is distributed.
+
+```{r plot2, echo=FALSE}
+# Means by country
+country_means <- uk %>%
+  dplyr::group_by(country) %>%
+  dplyr::summarise(
+    mean_votes = mean(valid_votes, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 1) Counts histogram, faceted by country
+p_counts <- ggplot(uk, aes(x = valid_votes)) +
+  geom_histogram(bins = 20, fill = "steelblue", alpha = 0.7) +
+  geom_vline(
+    data = country_means,
+    aes(xintercept = mean_votes),
+    color = "red", linetype = "dashed", linewidth = 1
+  ) +
+  facet_wrap(~ country, ncol = 2) +
+  labs(
+    title = "Counts",
+    x = "Number of valid votes",
+    y = "Number of constituencies"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+
+# 2) Density histogram, faceted by country
+p_density <- ggplot(uk, aes(x = valid_votes, y = after_stat(density))) +
+  geom_histogram(bins = 20, fill = "steelblue", alpha = 0.7, boundary = 0) +
+  geom_vline(
+    data = country_means,
+    aes(xintercept = mean_votes),
+    color = "red", linetype = "dashed", linewidth = 1
+  ) +
+  facet_wrap(~ country, ncol = 2) +
+  labs(
+    title = "Density",
+    x = "Number of valid votes",
+    y = "Density"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+
+# 3) Combine side by side with patchwork
+(p_counts | p_density) +
+  plot_annotation(
+    title = "Distribution of Constituency Valid Votes by Country",
+    subtitle = "Left: raw counts, Right: density. Red line = country-specific mean."
+  ) &
+  theme(
+    axis.text.y  = element_text(size = 5),
+    axis.text.x  = element_text(size = 5),
+    axis.title.y = element_text(size = 6),
+    axis.title.x = element_text(size = 6),
+    strip.text   = element_text(size = 6),
+    plot.title   = element_text(size = 12)
+  )
+```
+
+## What the figure begins to show
+The first thing the figure reveals is scale. England dominates the counts visually, not necessarily because its constituencies are more politically distinctive, but because it has many more of them. That is why the density plots matter: once the distributions are rescaled, the comparison shifts from “how many” to “what kind of pattern.”
+
+Seen this way, the four countries do not look identical. Northern Ireland appears more tightly clustered around its mean, suggesting less variation in constituency vote totals. Wales looks more uneven, with a broader spread that hints at greater internal variation. England and Scotland sit somewhere in between, with substantial numbers of constituencies but different distributional shapes. Rather than one national picture of turnout and participation, the election begins to break into several regional stories.
+
+## Why this matters
+What makes this pattern interesting is that it pushes against the idea of a perfectly uniform democratic experience. If constituency vote totals differ systematically across places, then participation is not distributed evenly across the UK. Some of this variation may reflect differences in electorate size, turnout, geography, or local political competition. Even so, the main pattern is that what looks like one national election from above begins to look much more uneven when viewed at constituency level.
+
+This is why visualisation matters in quantitative political analysis. It does more than summarise data, it helps reveal structure. By plotting constituency distributions rather than relying only on national totals, it becomes possible to see where electoral participation looks relatively uniform and where it becomes more uneven. That, in turn, opens the door to further questions about representation, fairness, and the local conditions that shape democratic engagement.

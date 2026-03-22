@@ -91,27 +91,24 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_meta_tags-->
   <title>My Website: Understanding Electoral Participation in the UK</title>
 
-  <meta property="description" itemprop="description" content="Advanced Quantitative Political Analysis"/>
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
   <meta property="og:title" content="My Website: Understanding Electoral Participation in the UK"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="Advanced Quantitative Political Analysis"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="My Website"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
   <meta property="twitter:title" content="My Website: Understanding Electoral Participation in the UK"/>
-  <meta property="twitter:description" content="Advanced Quantitative Political Analysis"/>
 
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","output"]}},"value":[{"type":"character","attributes":{},"value":["Understanding Electoral Participation in the UK"]},{"type":"character","attributes":{},"value":["Advanced Quantitative Political Analysis"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","output"]}},"value":[{"type":"character","attributes":{},"value":["Understanding Electoral Participation in the UK"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2120,7 +2117,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Understanding Electoral Participation in the UK","description":"Advanced Quantitative Political Analysis","authors":[]}
+{"title":"Understanding Electoral Participation in the UK","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2132,8 +2129,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
-<a href="landing.html">Landing</a>
-<a href="gv300.html">GV300 Showcase</a>
+<a href="projects.html">Projects</a>
+<a href="cv.html">CV</a>
+<a href="electoral-participation.html">Electoral Participation</a>
+<a href="text-analysis.html">Text Analysis</a>
+<a href="institutional-trust.html">Institutional Trust</a>
 <a href="https://github.com/ediana952/GV300-Assignment">GitHub</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
@@ -2148,16 +2148,15 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p>Advanced Quantitative Political Analysis</p>
+
 </div>
 
 
 <div class="d-article">
-<h2 id="what-does-this-page-show">What does this page show</h2>
-<p>This page shows a small piece of my GV300 work using UK general election data. I demonstrate how I clean candidate-level results into a constituency-level dataset and then visualise how constituency vote totals vary across the UK.</p>
-<h2 id="introduction">Introduction</h2>
-<p>Even within the same election, constituencies can differ in the number of valid votes recorded. Looking at these differences helps us understand variation in participation and why comparisons across countries need careful visualisation.</p>
-<h2 id="code-example">Code example</h2>
+<h2 id="from-raw-results-to-constituency-patterns">From raw results to constituency patterns</h2>
+<p>General elections are often discussed as if they produce one national result, but they are experienced very differently across places. Behind the headline outcome lies a quieter geography of participation: some constituencies record far more votes than others, and those differences can shape how representative an election really feels.</p>
+<p>This page follows that variation across the UK. Using constituency-level election data, I move from raw candidate results to a clearer picture of how valid votes are distributed across England, Scotland, Wales, and Northern Ireland. Rather than one single pattern, the election looks different across the four countries.</p>
+<p>The original dataset records candidate-level election results. To make comparisons across constituencies possible, I aggregated those results into constituency-level totals and combined them with electorate data. This makes it possible to look beyond individual candidates and focus instead on the broader structure of participation.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>uk_csv</span> <span class='op'>&lt;-</span> <span class='st'>"https://electionresults.parliament.uk/general-elections/6/candidacies.csv"</span></span>
@@ -2198,13 +2197,17 @@ $ valid_votes        &lt;dbl&gt; 48544, 40912, 51452, 42531, 54740, 39882,…
 $ electorate         &lt;dbl&gt; 78553, 70268, 74025, 71546, 77969, 68929,…
 $ turnout_registered &lt;dbl&gt; 61.79777, 58.22280, 69.50625, 59.44567, 7…</code></pre>
 </div>
-<p>The code loads official UK general election results at the candidate level and cleans the column names for consistency. I remove by-elections so the dataset reflects general election contests only. I then select the variables needed for analysis and aggregate candidate votes within each constituency to calculate total valid votes. This produces a constituency level dataset that can be compared across countries.</p>
-<h2 id="visualisation">Visualisation</h2>
+<h2 id="looking-for-variation-across-the-uk">Looking for variation across the UK</h2>
+<p>Once the data is reshaped to constituency level, the next step is to see how vote totals are distributed within each country. Rather than focusing only on averages, the visualisation below shows how tightly clustered or widely spread constituency vote totals are. That matters because elections are not only about who wins, but also about how evenly participation is distributed.</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="gv300_files/figure-html5/plot2-1.png" alt="" width="624" /></p>
+<p><img src="electoral-participation_files/figure-html5/plot2-1.png" alt="" width="624" /></p>
 </div>
-<p>The figure compares the distribution of valid votes per constituency across England, Scotland, Wales, and Northern Ireland. The Counts panels (left) show number of constituencies, so England’s bars are much taller mainly because it has far more constituencies. The dashed red line marks the country mean: England and Scotland are around the mid 40,000 valid votes, while Northern Ireland is more tightly concentrated around its mean, indicating less variation in constituency vote totals. Wales shows a wider, more uneven shape, suggesting greater variation across its constituencies.</p>
-<p>The Density panels (right) rescale the y-axis so it can compare the shape of each country’s distribution fairly, regardless of how many constituencies the country has. This matters because raw counts can be misleading when one country has many more observations than another. Considerably, differences in constituency vote totals can reflect variation in electorate size and turnout, and they connect to debates about electoral fairness and representation. If constituencies systematically differ in size, the “weight” of a vote may differ across places. Visualising these distributions helps identify where variation is small (more uniform) versus large (potentially more unequal), and it can lead to further analysis of what drives these differences such as demographics, urbanisation, or competitiveness.</p>
+<h2 id="what-the-figure-begins-to-show">What the figure begins to show</h2>
+<p>The first thing the figure reveals is scale. England dominates the counts visually, not necessarily because its constituencies are more politically distinctive, but because it has many more of them. That is why the density plots matter: once the distributions are rescaled, the comparison shifts from “how many” to “what kind of pattern.”</p>
+<p>Seen this way, the four countries do not look identical. Northern Ireland appears more tightly clustered around its mean, suggesting less variation in constituency vote totals. Wales looks more uneven, with a broader spread that hints at greater internal variation. England and Scotland sit somewhere in between, with substantial numbers of constituencies but different distributional shapes. Rather than one national picture of turnout and participation, the election begins to break into several regional stories.</p>
+<h2 id="why-this-matters">Why this matters</h2>
+<p>What makes this pattern interesting is that it pushes against the idea of a perfectly uniform democratic experience. If constituency vote totals differ systematically across places, then participation is not distributed evenly across the UK. Some of this variation may reflect differences in electorate size, turnout, geography, or local political competition. Even so, the main pattern is that what looks like one national election from above begins to look much more uneven when viewed at constituency level.</p>
+<p>This is why visualisation matters in quantitative political analysis. It does more than summarise data, it helps reveal structure. By plotting constituency distributions rather than relying only on national totals, it becomes possible to see where electoral participation looks relatively uniform and where it becomes more uneven. That, in turn, opens the door to further questions about representation, fairness, and the local conditions that shape democratic engagement.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
