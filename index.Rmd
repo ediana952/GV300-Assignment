@@ -16,4 +16,4 @@ I’m an Economics and Politics student at the University of Essex with a strong
 
 This website is a space to showcase projects I’ve worked on across my studies, including data analysis, text analysis, and other pieces that reflect both my academic interests and my developing technical skills in R.
 
-You can begin with my [Projects](projects.html) page, where I’ve collected the main pieces of work featured on this site or view my [CV](cv.html).
+You can begin with my [Projects](projects.html) page, where I’ve collected the main pieces of work featured on this site or view my [CV](CV.html).
