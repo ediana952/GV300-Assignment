@@ -12,7 +12,7 @@ navbar:
     - text: "Projects"
       href: projects.html
     - text: "CV"
-      href: cv.html
+      href: CV.html
     - text: "Electoral Participation"
       href: electoral-participation.html
     - text: "Text Analysis"
