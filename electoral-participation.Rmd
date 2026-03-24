@@ -53,7 +53,7 @@ glimpse(uk)
 ## Looking for variation across the UK
 Once the data is reshaped to constituency level, the next step is to see how vote totals are distributed within each country. Rather than focusing only on averages, the visualisation below shows how tightly clustered or widely spread constituency vote totals are. That matters because elections are not only about who wins, but also about how evenly participation is distributed.
 
-```{r plot2, echo=FALSE}
+```{r plot2, echo=TRUE}
 # Means by country
 country_means <- uk %>%
   dplyr::group_by(country) %>%
